@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Approval } from 'background/service/notification';
 import { useWallet, useApproval } from 'ui/utils';
 import { IExtractFromPromise } from '@/ui/utils/type';
+import { CHAINS_ENUM, SIGN_PERMISSION_TYPES } from 'consts';
 
 import * as ApprovalComponent from './components';
 
@@ -15,7 +15,7 @@ const Approval: React.FC<{
   const history = useHistory();
   // const [account, setAccount] = useState('');
   const wallet = useWallet();
-  const [getApproval, , rejectApproval] = useApproval();
+  const [getApproval, resolveApproval, rejectApproval] = useApproval();
   type IApproval = Exclude<
     IExtractFromPromise<ReturnType<typeof getApproval>>,
     void
@@ -34,6 +34,11 @@ const Approval: React.FC<{
     if (!account) {
       rejectApproval();
       return;
+    } else if (approval.data.approvalComponent === 'Connect') {
+      resolveApproval({
+        defaultChain: CHAINS_ENUM.ETH,
+        signPermission: SIGN_PERMISSION_TYPES.MAINNET_AND_TESTNET,
+      });
     }
   };
 
